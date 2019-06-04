@@ -23,7 +23,16 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+//        //Set the global constraint for id identifier which allows one or more number characters.
+        //Route::pattern('id', '[0-9]+');
+//
+//        //(redundant) declaration to bind projects identifier to Project model.
+//        Route::model('projects', App\Projects::class);
+//
+//        // customize the resolution logic rules
+//        Route::bind('id', function($identifier){
+//            return App\Projects::where('id', $identifier)->first() ?? abort(404);
+//        });
 
         parent::boot();
     }
