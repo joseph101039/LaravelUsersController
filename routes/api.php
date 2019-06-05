@@ -19,6 +19,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::resource('projects', 'ProjectsController');
 
-Route::resource('user', 'UserController');
+Route::resource('user', 'UserController')->middleware('cors2');
 
 
