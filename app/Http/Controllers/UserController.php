@@ -46,10 +46,10 @@ class UserController extends Controller
 
             $data = [
                 'id'        =>  $user->id,
-                'firstName' =>  $user->firstName,
+                'firstName' =>  $user->first_name,
                 'gender'    => ($user->gender)?"女":"男",
                 'photo'     =>  $photo?'data:image/jpeg;base64,'.$photo:"",
-                'lastName'  =>  $user->lastName,
+                'lastName'  =>  $user->last_name,
                 'interest'  =>  json_decode($user->interest),
                 'city'      =>  $user->city??"",
                 'address'   =>  $user->address??"",
@@ -104,8 +104,8 @@ class UserController extends Controller
         $interestStr = json_encode($request->interest);
 
         $userData = [
-            'firstName' =>  $request->firstName,
-            'lastName'  =>  $request->lastName,
+            'firstName' =>  $request->first_name,
+            'lastName'  =>  $request->last_name,
             'tel'       =>  $request->tel,
             'birthday'  =>  $request->birthday,
             'gender'    => ($request->gender)=="女"?1:0,
@@ -161,8 +161,8 @@ class UserController extends Controller
         $interestStr = json_encode($request->interest);
 
         $userData = [
-            'firstName' =>  $request->firstName,
-            'lastName'  =>  $request->lastName,
+            'firstName' =>  $request->first_name,
+            'lastName'  =>  $request->last_name,
             'tel'       =>  $request->tel,
             'birthday'  =>  $request->birthday,
             'gender'    => ($request->gender)=="女"?1:0,
