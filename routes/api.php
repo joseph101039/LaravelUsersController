@@ -13,12 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+//Route::middleware('auth:api')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
 
-Route::resource('projects', 'ProjectsController');
+//Route::resource('projects', 'ProjectsController');
 
-Route::resource('user', 'UserController')->middleware('cors2');
+/* Partial Resource routes excluding all display resources.*/
+Route::resource('user', 'UserController')->except('create', 'show', 'edit')->middleware('cors2');
+Route::get('user/{account}/account', 'UserController@checkIfAccountExisted')->middleware('cors2');
 
 
