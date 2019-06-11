@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Pagination;
+
 
 class UserController extends Controller
 {
@@ -14,6 +17,8 @@ class UserController extends Controller
         $this->UserModel  = new User();
     }
 
+
+
     /**
      * Display a listing of the resource.
      *
@@ -22,8 +27,11 @@ class UserController extends Controller
     public function index()
     {
 
-        $allUsers = $this->UserModel->get();
+        $allUsers = $this->UserModel->paginate(6);
+        $total = $allUsers->total();
+        $allUsers = $allUsers->items();
 
+		//$allUsers = $this>UserModel->get();
         $userData = [];
         foreach ($allUsers as $user)
         {
@@ -40,7 +48,7 @@ class UserController extends Controller
                 'id'        =>  $user->id,
                 'firstName' =>  $user->firstName,
                 'gender'    => ($user->gender)?"女":"男",
-                'photo'     =>  $photo??"",
+                'photo'     =>  $photo?'data:image/jpeg;base64,'.$photo:"",
                 'lastName'  =>  $user->lastName,
                 'interest'  =>  json_decode($user->interest),
                 'city'      =>  $user->city??"",
@@ -52,22 +60,14 @@ class UserController extends Controller
 
             ];
 
-
             array_push($userData, $data);
         }
+        return json_encode(new Pagination\LengthAwarePaginator($userData, $total, 6));
        //dd(json_encode($userData));
-        return json_encode($userData);
+//        return json_encode($userData);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -77,37 +77,50 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $photoName = null;
+        if($request->photo) {
+            // strip the photo header information
+            if(preg_match('/^data:image\/(\w+);base64,/', $request->photo))
+            {
+                $photoBase64 = substr($request->photo, strpos($request->photo, ',') + 1);
+            }
+            $photoDecode = base64_decode($photoBase64);
+            if($photoDecode !== false)
+            {
+                $photoName = self::generateRandomString(20).'.jpeg';
+                while(Storage::disk('local')->exists('images\\'.$photoName)){
+                    $photoName = self::generateRandomString(20).'.jpeg';
+                }
+                if(!Storage::disk('local')->put('images\\' .  $photoName, $photoDecode))
+                {
+                    $photoName = null;
+                }
+            }
+        }
+
+
+
+        $interestStr = json_encode($request->interest);
+
         $userData = [
-            'name'      =>  $request->name,
-            'email'     =>  $request->email,
+            'firstName' =>  $request->firstName,
+            'lastName'  =>  $request->lastName,
+            'tel'       =>  $request->tel,
+            'birthday'  =>  $request->birthday,
+            'gender'    => ($request->gender)=="女"?1:0,
+            'interest'  =>  $interestStr?$interestStr:json_encode([]),
+            'city'      =>  $request->city,
+            'address'   =>  $request->address,
+            'account'   =>  $request->account,
             'password'  =>  $request->password,
+            'photo'     => $photoName,
         ];
+
         return $this->UserModel->create($userData);
-    }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
 
-        return User::find($id);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        //return true;
     }
 
     /**
@@ -119,13 +132,58 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        User::find($id)->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'password'  => $request->password,
-        ]);
 
+        $photoName = null;
+        if($request->photo) {
+            // strip the photo header information
+            if(preg_match('/^data:image\/(\w+);base64,/', $request->photo))
+            {
+                $photoBase64 = substr($request->photo, strpos($request->photo, ',') + 1);
+            }
+            $photoDecode = base64_decode($photoBase64);
+            if($photoDecode !== false)
+            {
+                $photoName = self::generateRandomString(20).'.jpeg';
+                while(Storage::disk('local')->exists('images\\'.$photoName)){
+                    $photoName = self::generateRandomString(20).'.jpeg';
+                }
+
+                // if the photo cannot be storaged, do not update the image file name.
+                if(!Storage::disk('local')->put('images\\' . $photoName, $photoDecode))
+                {
+                    $photoName = null;
+                }
+            }
+        }
+
+
+
+        $interestStr = json_encode($request->interest);
+
+        $userData = [
+            'firstName' =>  $request->firstName,
+            'lastName'  =>  $request->lastName,
+            'tel'       =>  $request->tel,
+            'birthday'  =>  $request->birthday,
+            'gender'    => ($request->gender)=="女"?1:0,
+            'interest'  =>  $interestStr?$interestStr:json_encode([]),
+            'city'      =>  $request->city,
+            'address'   =>  $request->address,
+            'account'   =>  $request->account,
+            'password'  =>  $request->password,
+        ];
+
+        if(isset($photoName))
+        {
+            $userData['photo'] = $photoName;
+        }
+
+        User::find($id)->update(
+            $userData
+        );
+        //return response()->json($request);
+
+        return;
     }
 
     /**
@@ -136,7 +194,43 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
-        User::destroy($id);
+        // use soft delete method
+        $user = User::find($id);
+        if($user)
+        {
+            $user->deleted_at = Carbon::now();
+            $user->save();
+        }
+
+    }
+
+    /**
+     *  random string generator for photo name
+     * @param int $length
+     * @return string $randomString
+     * */
+
+    private function generateRandomString($length)
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+    /**
+     * check if the account already exists.
+     * @param string $account
+     * @return array $matchedId
+     * */
+
+    public function checkIfAccountExisted($account)
+    {
+        //return id of existed user
+        $userId = User::where('account', $account)->get('id');
+        return count($userId)?json_encode([['id'=>$userId[0]->id]]):json_encode([]);
     }
 }
