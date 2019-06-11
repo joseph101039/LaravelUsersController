@@ -20,7 +20,7 @@ use Illuminate\Http\Request;
 //Route::resource('projects', 'ProjectsController');
 
 /* Partial Resource routes excluding all display resources.*/
-Route::resource('user', 'UserController')->except('create', 'show', 'edit')->middleware('cors2');
-Route::get('user/{account}/account', 'UserController@checkIfAccountExisted')->middleware('cors2');
+Route::resource('user', 'UserController')->except('create', 'show', 'edit');
+Route::get('user/{account}/account', 'UserController@checkIfAccountExisted');
 
 

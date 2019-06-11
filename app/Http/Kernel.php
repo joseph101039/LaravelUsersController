@@ -19,6 +19,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\TrustProxies::class,
+        \App\Http\Middleware\EnableCrossRequestMiddleware::class,       // add middleware to figure out  preflight request (options method) CORS issue as a workaround solution
     ];
 
     /**

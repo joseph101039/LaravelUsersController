@@ -18,13 +18,20 @@ class EnableCrossRequestMiddleware
         $allow_origin = [
             'http://localhost:8080',
         ];
+
         if (in_array($origin, $allow_origin)) {
             $response->header('Access-Control-Allow-Origin', $origin);
-            $response->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Cookie, X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN');
+
+            //Access-Control-Allow-Headers: Indicates the allowed request headers for cross-origin requests
+            $response->header('Access-Control-Allow-Headers', 'X-Requested-With, Origin, Content-Type, Cookie, X-CSRF-TOKEN, Accept, Authorization, X-XSRF-TOKEN, Cache-Control, access_token');
             $response->header('Access-Control-Expose-Headers', 'Authorization, authenticated');
-            $response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS');
+			$response->header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, OPTIONS', 'DELETE');
             $response->header('Access-Control-Allow-Credentials', 'true');
-            $response->header('Vary', 'Origin');
+
+            //Per the spec requirements Vary: Origin doesn’t affect the behavior of the CORS-preflight cache.
+            //Access-Control-Max-Age: Defines the expiration time of the result of the cached preflight request
+            $response->header("Access-Control-Max-Age", "10");
+            $response->header('Vary', 'Accept-Encoding, Origin, Access-Control-Request-Method, Access-Control-Request-Header');
         }
         return $response;
     }
