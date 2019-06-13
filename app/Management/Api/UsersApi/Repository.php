@@ -41,7 +41,7 @@ class Repository extends BaseRepository
     {
         // base64 format image with header
         if($photo) {
-            // strip the image header information
+            // strip the image MIME
             if(preg_match('/^data:image\/(\w+);base64,/', $photo)) {
                 $photoBase64 = substr($photo, strpos($photo, ',') + 1);
             }

@@ -30,7 +30,7 @@ class EnableCrossRequestMiddleware
 
             //Per the spec requirements Vary: Origin doesn’t affect the behavior of the CORS-preflight cache.
             //Access-Control-Max-Age: Defines the expiration time of the result of the cached preflight request
-            $response->header("Access-Control-Max-Age", "10");
+            $response->header("Access-Control-Max-Age", "600");
             $response->header('Vary', 'Accept-Encoding, Origin, Access-Control-Request-Method, Access-Control-Request-Header');
         }
         return $response;
