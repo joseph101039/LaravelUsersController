@@ -20,7 +20,11 @@ use Illuminate\Http\Request;
 //Route::resource('projects', 'ProjectsController');
 
 /* Partial Resource routes excluding all display resources.*/
-Route::resource('user', 'UserController')->except('create', 'show', 'edit');
-Route::get('user/{account}/account', 'UserController@checkIfAccountExisted');
+
+//Route::resource('user', 'UserController')->except('create', 'show', 'edit');
+
+
+Route::get('users/{account}/account', 'Api\UsersApi\Controller@checkIfAccountExisted');
+Route::resource('users', 'Api\UsersApi\Controller')->except('create', 'show', 'edit');
 
 
