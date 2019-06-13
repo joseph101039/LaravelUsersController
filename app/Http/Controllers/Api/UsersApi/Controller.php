@@ -38,7 +38,7 @@ class Controller extends \App\Http\Controllers\Controller
         // for search filter usage
         $filters = [
             'id'            =>  $request->id??null,
-            'first_name'    =>  $request->firstName??null,
+            'first_name'    =>  $request->first_name??null,
             'gender'        =>  isset($request->gender)?(($request->gender === '女')?1:0):null,
             'last_name'     =>  $request->last_name??null,
             'city'          =>  $request->city??null,
