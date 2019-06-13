@@ -57,7 +57,7 @@ class Controller extends \App\Http\Controllers\Controller
                 return $this->responseMaker(17, null, null);
             }
 
-            $userData = $this->usersTransformer->UsersTransformer($searchResult, $filters['per_page']);
+            $userData = $this->usersTransformer->UsersTransformerPostProcessing($searchResult, $filters['per_page']);
             $response = $this->responseMaker(0, null, $userData);
         }
         catch(\Exception $e){
@@ -79,6 +79,8 @@ class Controller extends \App\Http\Controllers\Controller
         try{
             // call the helper to filter the request attributes for partial update
             $userData = $this->filterUnsetAttr($request, $this->usersColumn);
+            // pre-processing the data format
+            $userData = $this->usersTransformer->UserTransformerPreProcessing($userData);
             $result = $this->usersService->update($userData, $id);
             $response = $this->responseMaker(($result['success']) ? 101: 8, $result['message'], null);
         }
@@ -101,6 +103,7 @@ class Controller extends \App\Http\Controllers\Controller
     {
         try{
             $userData = $this->setUnsetAttributeNull($request, $this->usersColumn);
+            $userData = $this->usersTransformer->UserTransformerPreProcessing($userData);
             $result = $this->usersService->store($userData);
             $response = $this->responseMaker(($result['success']) ? 101: 8, $result['message'], null);
 
@@ -115,7 +118,7 @@ class Controller extends \App\Http\Controllers\Controller
 
 
     /**
-     * delete the specified resource in storage.
+     * Soft delete the specified resource in storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response $response
@@ -125,8 +128,6 @@ class Controller extends \App\Http\Controllers\Controller
         try{
             $result = $this->usersService->destroy($id);
             $response = $this->responseMaker($result['success']?101:7, $result['message'], null);
-
-
         }
         catch(\Exception $e){
             return $this->responseMaker(1, $e->getMessage(), null);
