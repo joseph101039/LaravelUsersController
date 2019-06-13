@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Management\Api\UsersApi\Service as UsersService;
 use App\Http\Controllers\Api\UsersApi\Transformer as UsersTransformer;
+use App\Http\Controllers\Api\UsersApi\Form as UsersForm;
+use App\Http\Controllers\Api\UsersApi\UpdateForm as UsersUpdateForm;
 
 //use App\User;
 //use Carbon\Carbon;
@@ -69,12 +71,12 @@ class Controller extends \App\Http\Controllers\Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  UsersUpdateForm  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response $response
      */
 
-    public function update(Request $request, $id)
+    public function update(UsersUpdateForm $request, $id)
     {
         try{
             // call the helper to filter the request attributes for partial update
@@ -95,11 +97,11 @@ class Controller extends \App\Http\Controllers\Controller
     /**
      *  Store a newly created resource in storage
      *
-     * @param Request $request
+     * @param Form $request
      * @return Response $response
      * */
 
-    public function store(Request $request)
+    public function store(UsersForm $request)        // inject the Request into Form
     {
         try{
             $userData = $this->setUnsetAttributeNull($request, $this->usersColumn);
