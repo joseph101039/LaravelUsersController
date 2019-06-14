@@ -13,17 +13,6 @@ use Illuminate\Http\Request;
 |
 */
 
-//Route::middleware('auth:api')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
-//Route::resource('projects', 'ProjectsController');
-
-/* Partial Resource routes excluding all display resources.*/
-
-//Route::resource('user', 'UserController')->except('create', 'show', 'edit');
-
-
 Route::get('users/{account}/account', 'Api\UsersApi\Controller@checkIfAccountExisted');
 Route::resource('users', 'Api\UsersApi\Controller')->except('create', 'show', 'edit');
 
